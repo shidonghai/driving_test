@@ -1,0 +1,1 @@
+package com.assistant.drivingtest.domain;public class ThirdTestItem {	public int type;	public String name;	public double longitude;	public double latitude;	public String voice;	public String speed;		public double azimuth;}

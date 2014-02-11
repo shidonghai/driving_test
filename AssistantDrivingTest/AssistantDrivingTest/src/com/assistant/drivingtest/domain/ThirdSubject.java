@@ -1,0 +1,1 @@
+package com.assistant.drivingtest.domain;import java.util.List;public class ThirdSubject {		public long id;	public String name;		public List<ThirdTestItem> items;}

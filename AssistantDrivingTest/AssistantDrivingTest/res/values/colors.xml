@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="transparent">#00000000</color>
+    <color name="white">#ffffffff</color>
+    <color name="gray">#ffeeeeee</color>
+    <color name="black">#ff000000</color>
+    <color name="blue">#ff42adf4</color>
+    
+    <color name="theme_blue">#13B4E9</color>
+    <color name="theme_blue_off">#8813B4E9</color>
+    
+    <color name="third_item">#566e80</color>
+    
+    <color name="second_title_color">#d8822c</color>
+    <color name="third_title_color">#3b84ba</color>
+
+</resources>

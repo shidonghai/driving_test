@@ -1,0 +1,1 @@
+package com.assistant.drivingtest.location;public class LocationManager {}
