@@ -67,7 +67,7 @@ public class LocationOverlay extends Fragment {
 	// UI相关
 	OnCheckedChangeListener radioButtonListener = null;
 	boolean isRequest = false;// 是否手动触发请求定位
-	boolean isFirstLoc = true;// 是否首次定位
+	boolean isFirstLoc = false;// 是否首次定位
 
 	private TextView mLocation;
 
@@ -171,7 +171,7 @@ public class LocationOverlay extends Fragment {
 
 		GeoPoint start = new GeoPoint((int) (mItems.get(0).latitude * 1E6),
 				(int) (mItems.get(0).longitude * 1E6));
-		
+
 		GeoPoint stop = new GeoPoint(
 				(int) (mItems.get(mItems.size() - 1).latitude * 1E6),
 				(int) (mItems.get(mItems.size() - 1).longitude * 1E6));
@@ -185,8 +185,8 @@ public class LocationOverlay extends Fragment {
 		for (int i = 0; i < mItems.size(); i++) {
 
 			routeData[i] = new GeoPoint[] { new GeoPoint(
-					(int) ((mItems.get(i).latitude + (double) 0.001 * i) * 1E6),
-					(int) ((mItems.get(i).longitude + (double) 0.001 * i) * 1E6)) };
+					(int) (mItems.get(i).latitude * 1E6),
+					(int) (mItems.get(i).longitude * 1E6)) };
 		}
 
 		// 用站点数据构建一个MKRoute

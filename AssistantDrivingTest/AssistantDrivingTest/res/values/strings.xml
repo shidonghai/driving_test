@@ -42,6 +42,7 @@
     <string name="distance">项目距离：%s</string>
     <string name="angle">偏转角度：%s°</string>
     
+    <string name="start_test">开始测试</string>
     <string name="deduction_name">项目名称</string>
     <string name="deduction_reason">扣分原因</string>
     <string name="deduction_scores">扣分值</string>

@@ -1,5 +1,7 @@
 package com.assistant.drivingtest.ui;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,6 +20,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -41,9 +44,16 @@ import com.assistant.drivingtest.sensor.GyroscopeSensorObserver;
 import com.assistant.drivingtest.sensor.MagneticSensor;
 import com.assistant.drivingtest.sensor.MagneticSensorObserver;
 import com.assistant.drivingtest.sensor.filter.MeanFilter;
+import com.assistant.drivingtest.ui.LocationOverlay.locationOverlay;
 import com.assistant.drivingtest.utils.Constant;
 import com.assistant.drivingtest.utils.MapUtil;
 import com.baidu.mapapi.map.LocationData;
+import com.baidu.mapapi.map.MapController;
+import com.baidu.mapapi.map.MapView;
+import com.baidu.mapapi.map.MyLocationOverlay;
+import com.baidu.mapapi.map.RouteOverlay;
+import com.baidu.mapapi.search.MKRoute;
+import com.baidu.platform.comapi.basestruct.GeoPoint;
 
 public class ThirdSubjectItemFragment extends Fragment implements
 		OnClickListener, GravitySensorObserver, MagneticSensorObserver,
@@ -70,6 +80,8 @@ public class ThirdSubjectItemFragment extends Fragment implements
 	private ListView mDeductionListView;
 
 	private TextView mTitle;
+
+	private View mMapLayout;
 
 	private GravitySensor mGravitySensor;
 
@@ -121,11 +133,18 @@ public class ThirdSubjectItemFragment extends Fragment implements
 
 	private LocationData mLocationData;
 
-	private boolean mStartTest = true;
+	private boolean mStartTest = false;
 
 	private boolean mInProcessing;
 
 	private ThirdSubjectTestManager mTestManager;
+
+	private MapView mMapView = null; // 地图View
+
+	private MapController mMapController = null;
+
+	// 定位图层
+	private MyLocationOverlay myLocationOverlay = null;
 
 	private List<Deduction> mDeductions = new ArrayList<Deduction>();
 
@@ -142,6 +161,7 @@ public class ThirdSubjectItemFragment extends Fragment implements
 				}
 
 				mAdapter.setList(items);
+				setOverlay(items);
 				break;
 
 			default:
@@ -162,20 +182,14 @@ public class ThirdSubjectItemFragment extends Fragment implements
 		super.onViewCreated(view, savedInstanceState);
 
 		initView(view);
+
 		Bundle bundle = getArguments();
 		long id = bundle.getLong("id");
 		String name = bundle.getString("name");
 		mTitle.setText(name);
+
 		Log.d(TAG, "ThirdSubjectItemFragment:" + id);
 		loadLines(id);
-
-		Toast.makeText(getActivity(), R.string.night_driving,
-				Toast.LENGTH_SHORT).show();
-
-		ThirdTestItemManager thirdTestItemManager = ThirdTestItemManager
-				.getInstace();
-		// thirdTestItemManager.startLightTest(getActivity());
-		thirdTestItemManager.setLightTestListener(new LightTestListerner());
 	}
 
 	@Override
@@ -198,6 +212,7 @@ public class ThirdSubjectItemFragment extends Fragment implements
 		super.onResume();
 
 		mLocationTask.start();
+		mMapView.onResume();
 
 		mGravitySensor.registerGravityObserver(this);
 		mMagneticSensor.registerMagneticObserver(this);
@@ -209,6 +224,7 @@ public class ThirdSubjectItemFragment extends Fragment implements
 		super.onPause();
 
 		mLocationTask.stop();
+		mMapView.onPause();
 
 		mGravitySensor.removeGravityObserver(this);
 		mMagneticSensor.removeMagneticObserver(this);
@@ -221,6 +237,8 @@ public class ThirdSubjectItemFragment extends Fragment implements
 	public void onDestroy() {
 		super.onDestroy();
 
+		mMapView.destroy();
+
 		mTestManager.onDestroy();
 		ThirdTestItemManager.getInstace().stopLightTest();
 	}
@@ -228,6 +246,9 @@ public class ThirdSubjectItemFragment extends Fragment implements
 	private void initView(View view) {
 		ImageView back = (ImageView) view.findViewById(R.id.back);
 		back.setOnClickListener(this);
+
+		Button startTest = (Button) view.findViewById(R.id.start_test);
+		startTest.setOnClickListener(this);
 
 		mTitle = (TextView) view.findViewById(R.id.title);
 		mAngleView = (TextView) view.findViewById(R.id.angle);
@@ -248,6 +269,23 @@ public class ThirdSubjectItemFragment extends Fragment implements
 		mDeductionListView.setAdapter(mDeductionAdapter);
 		mDeductionListView.setDividerHeight(0);
 
+		mMapLayout = view.findViewById(R.id.map_layout);
+		mMapView = (MapView) view.findViewById(R.id.bmapView);
+		mMapController = mMapView.getController();
+		mMapView.getController().setZoom(13);
+		mMapView.getController().enableClick(true);
+		mMapView.setBuiltInZoomControls(true);
+
+		// 定位图层初始化
+		myLocationOverlay = new MyLocationOverlay(mMapView);
+		// 设置定位数据
+		myLocationOverlay.setData(mLocationData);
+		// 添加定位图层
+		mMapView.getOverlays().add(myLocationOverlay);
+		myLocationOverlay.enableCompass();
+		// 修改定位数据后刷新图层生效
+		mMapView.refresh();
+
 	}
 
 	@Override
@@ -258,9 +296,25 @@ public class ThirdSubjectItemFragment extends Fragment implements
 			getActivity().finish();
 			break;
 
+		case R.id.start_test:
+			startTest();
+			break;
+
 		default:
 			break;
 		}
+	}
+
+	private void startTest() {
+		mMapLayout.setVisibility(View.GONE);
+
+		Toast.makeText(getActivity(), R.string.night_driving,
+				Toast.LENGTH_SHORT).show();
+
+		ThirdTestItemManager thirdTestItemManager = ThirdTestItemManager
+				.getInstace();
+		thirdTestItemManager.startLightTest(getActivity());
+		thirdTestItemManager.setLightTestListener(new LightTestListerner());
 	}
 
 	private void loadLines(final long id) {
@@ -470,6 +524,71 @@ public class ThirdSubjectItemFragment extends Fragment implements
 		return result;
 	}
 
+	private double convertSpeed(double speed) {
+		return ((speed * Constant.HOUR_MULTIPLIER) * Constant.UNIT_MULTIPLIERS);
+	}
+
+	private double roundDecimal(double value, final int decimalPlace) {
+		BigDecimal bd = new BigDecimal(value);
+
+		bd = bd.setScale(decimalPlace, RoundingMode.HALF_UP);
+		value = bd.doubleValue();
+
+		return value;
+	}
+
+	private void setOverlay(List<ThirdTestItem> items) {
+		// ItemizedOverlay<OverlayItem> overlay = new
+		// ItemizedOverlay<OverlayItem>(
+		// getResources().getDrawable(R.drawable.nav_turn_via_1), mMapView);
+		//
+		// GeoPoint p = new GeoPoint((int) (mItems.get(0).latitude * 1E6),
+		// (int) (mItems.get(0).longitude * 1E6));
+		// OverlayItem item = new OverlayItem(p, "起点", "");
+		// item.setMarker(getResources().getDrawable(R.drawable.nav_turn_via_1));
+		// overlay.addItem(item);
+		// mMapView.getOverlays().add(overlay);
+		// mMapView.refresh();
+
+		if (null == items || items.size() == 0) {
+			return;
+		}
+
+		GeoPoint start = new GeoPoint((int) (items.get(0).latitude * 1E6),
+				(int) (items.get(0).longitude * 1E6));
+
+		GeoPoint stop = new GeoPoint(
+				(int) (items.get(items.size() - 1).latitude * 1E6),
+				(int) (items.get(items.size() - 1).longitude * 1E6));
+		// GeoPoint[] step = new GeoPoint[mItems.size()];
+		// for (int i = 0; i < mItems.size(); i++) {
+		// step[i] = new GeoPoint((int) (mItems.get(i).latitude * 1E6),
+		// (int) (mItems.get(i).longitude * 1E6));
+		// }
+
+		GeoPoint[][] routeData = new GeoPoint[items.size()][];
+		for (int i = 0; i < items.size(); i++) {
+
+			routeData[i] = new GeoPoint[] { new GeoPoint(
+					(int) (items.get(i).latitude * 1E6),
+					(int) (items.get(i).longitude * 1E6)) };
+		}
+
+		// 用站点数据构建一个MKRoute
+		MKRoute route = new MKRoute();
+		route.customizeRoute(start, stop, routeData);
+		// 将包含站点信息的MKRoute添加到RouteOverlay中
+		RouteOverlay routeOverlay = new RouteOverlay(getActivity(), mMapView);
+		routeOverlay.setData(route);
+		// 向地图添加构造好的RouteOverlay
+		mMapView.getOverlays().add(routeOverlay);
+		// 执行刷新使生效
+		mMapView.refresh();
+
+		mMapController.animateTo(start);
+
+	}
+
 	@Override
 	public void onSuccess(LocationData location) {
 		if (null == location) {
@@ -479,6 +598,9 @@ public class ThirdSubjectItemFragment extends Fragment implements
 		mLocationData = location;
 		mTestManager.setLocationData(mLocationData);
 		Log.d(TAG, "speed:" + location.speed);
+		String speedString = String.valueOf(roundDecimal(
+				convertSpeed(location.speed), 2));
+		mSpeed.setText(getString(R.string.speed, speedString));
 
 		if (null != mCureentTestItem) {
 			int distance = MapUtil.getDistanceInt(mLocationData.latitude,
