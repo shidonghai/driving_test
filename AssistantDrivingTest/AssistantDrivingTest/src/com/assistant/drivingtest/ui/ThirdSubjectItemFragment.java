@@ -597,10 +597,10 @@ public class ThirdSubjectItemFragment extends Fragment implements
 
 		mLocationData = location;
 		mTestManager.setLocationData(mLocationData);
-		Log.d(TAG, "speed:" + location.speed);
-		String speedString = String.valueOf(roundDecimal(
-				convertSpeed(location.speed), 2));
-		mSpeed.setText(getString(R.string.speed, speedString));
+		// Log.d(TAG, "speed:" + location.speed);
+		// String speedString = String.valueOf(roundDecimal(
+		// convertSpeed(location.speed), 2));
+		// mSpeed.setText(getString(R.string.speed, speedString));
 
 		if (null != mCureentTestItem) {
 			int distance = MapUtil.getDistanceInt(mLocationData.latitude,
@@ -691,6 +691,14 @@ public class ThirdSubjectItemFragment extends Fragment implements
 			mInProcessing = false;
 			mDeductionListView.setSelection(mDeductionAdapter.getCount());
 
+		}
+
+		@Override
+		public void setSpeed(float speed) {
+			Log.d(TAG, "setSpeed:" + speed);
+			String speedString = String.valueOf(roundDecimal(
+					convertSpeed(speed), 2));
+			mSpeed.setText(getString(R.string.speed, speedString));
 		}
 
 	}
