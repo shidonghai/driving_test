@@ -54,8 +54,12 @@ public class LocationTask {
 			locData.longitude = location.getLongitude();
 			locData.accuracy = location.getRadius();
 			locData.direction = location.getDerect();
+			locData.speed = location.getSpeed();
 
 			if (mLocationListener != null) {
+				int type = location.getLocType();
+				Log.d("zxh", "location type:" + type + " "
+						+ (type == BDLocation.TypeGpsLocation));
 				mLocationListener.onSuccess(locData);
 			}
 		}
@@ -77,6 +81,7 @@ public class LocationTask {
 		option.setOpenGps(true);// 打开gps
 		option.setCoorType("bd09ll"); // 设置坐标类型
 		option.setScanSpan(1000);
+		option.setPriority(LocationClientOption.GpsFirst);
 		mLocClient.setLocOption(option);
 	}
 

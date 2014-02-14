@@ -313,7 +313,8 @@ public class ThirdSubjectItemFragment extends Fragment implements
 
 		ThirdTestItemManager thirdTestItemManager = ThirdTestItemManager
 				.getInstace();
-		thirdTestItemManager.startLightTest(getActivity());
+//		thirdTestItemManager.startLightTest(getActivity());
+		mStartTest = true;
 		thirdTestItemManager.setLightTestListener(new LightTestListerner());
 	}
 
@@ -694,11 +695,12 @@ public class ThirdSubjectItemFragment extends Fragment implements
 		}
 
 		@Override
-		public void setSpeed(float speed) {
-			Log.d(TAG, "setSpeed:" + speed);
+		public void setSpeed(float speed, String distance) {
 			String speedString = String.valueOf(roundDecimal(
 					convertSpeed(speed), 2));
-			mSpeed.setText(getString(R.string.speed, speedString));
+			Log.d(TAG, "setSpeed:" + speedString);
+			mSpeed.setText(getString(R.string.speed, speedString) + "  "
+					+ distance);
 		}
 
 	}
