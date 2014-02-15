@@ -75,6 +75,9 @@ public class ThirdSubjectFragment extends Fragment implements OnClickListener,
 		ImageView setting = (ImageView) view.findViewById(R.id.setting);
 		setting.setOnClickListener(this);
 
+		View nightDriving = view.findViewById(R.id.night_driving);
+		nightDriving.setOnClickListener(this);
+
 		mEmptyView = (TextView) view.findViewById(R.id.empty_view);
 		ListView listView = (ListView) view.findViewById(R.id.third_list);
 		mAdapter = new ThirdSubjectAdapter();
@@ -95,6 +98,12 @@ public class ThirdSubjectFragment extends Fragment implements OnClickListener,
 			Intent third = new Intent(getActivity(),
 					ThirdSubjectSettingActivity.class);
 			startActivityForResult(third, 0);
+			break;
+
+		case R.id.night_driving:
+			Intent nightDriving = new Intent(getActivity(),
+					NightDrivingActivity.class);
+			startActivity(nightDriving);
 			break;
 
 		default:

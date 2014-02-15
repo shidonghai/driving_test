@@ -278,8 +278,10 @@ public class ThirdSubjectItemFragment extends Fragment implements
 
 		// 定位图层初始化
 		myLocationOverlay = new MyLocationOverlay(mMapView);
-		// 设置定位数据
-		myLocationOverlay.setData(mLocationData);
+		if (null != mLocationData) {
+			// 设置定位数据
+			myLocationOverlay.setData(mLocationData);
+		}
 		// 添加定位图层
 		mMapView.getOverlays().add(myLocationOverlay);
 		myLocationOverlay.enableCompass();
@@ -306,6 +308,12 @@ public class ThirdSubjectItemFragment extends Fragment implements
 	}
 
 	private void startTest() {
+		if (null == mLocationData) {
+			Toast.makeText(getActivity(), R.string.gps_error,
+					Toast.LENGTH_SHORT).show();
+			return;
+		}
+
 		mMapLayout.setVisibility(View.GONE);
 
 		Toast.makeText(getActivity(), R.string.night_driving,
@@ -313,8 +321,7 @@ public class ThirdSubjectItemFragment extends Fragment implements
 
 		ThirdTestItemManager thirdTestItemManager = ThirdTestItemManager
 				.getInstace();
-//		thirdTestItemManager.startLightTest(getActivity());
-		mStartTest = true;
+		thirdTestItemManager.startLightTest(getActivity());
 		thirdTestItemManager.setLightTestListener(new LightTestListerner());
 	}
 
@@ -592,12 +599,20 @@ public class ThirdSubjectItemFragment extends Fragment implements
 
 	@Override
 	public void onSuccess(LocationData location) {
-		if (null == location) {
+		mLocationData = location;
+		if (null == mLocationData) {
 			return;
 		}
 
-		mLocationData = location;
 		mTestManager.setLocationData(mLocationData);
+
+		double speed = convertSpeed(mLocationData.speed);
+		String speedString = String.valueOf(roundDecimal(speed, 2));
+		Log.d(TAG, "setSpeed:" + speedString);
+		mSpeed.setText(getString(R.string.speed, speedString));
+
+		mTestManager.setSpeed(speed);
+
 		// Log.d(TAG, "speed:" + location.speed);
 		// String speedString = String.valueOf(roundDecimal(
 		// convertSpeed(location.speed), 2));

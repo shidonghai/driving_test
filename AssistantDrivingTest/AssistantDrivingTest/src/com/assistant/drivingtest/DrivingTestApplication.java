@@ -68,15 +68,15 @@ public class DrivingTestApplication extends Application {
 				Toast.makeText(
 						DrivingTestApplication.getInstance()
 								.getApplicationContext(),
-						"请在 DrivingTestApplication.java文件输入正确的授权Key,并检查您的网络连接是否正常！error: "
+						"请输入正确的授权Key,并检查您的网络连接是否正常！error: "
 								+ iError, Toast.LENGTH_SHORT).show();
 				DrivingTestApplication.getInstance().m_bKeyRight = false;
 			} else {
 				DrivingTestApplication.getInstance().m_bKeyRight = true;
-				Toast.makeText(
-						DrivingTestApplication.getInstance()
-								.getApplicationContext(), "key认证成功",
-						Toast.LENGTH_SHORT).show();
+//				Toast.makeText(
+//						DrivingTestApplication.getInstance()
+//								.getApplicationContext(), "key认证成功",
+//						Toast.LENGTH_SHORT).show();
 			}
 		}
 	}

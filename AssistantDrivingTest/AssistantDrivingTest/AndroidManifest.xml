@@ -83,6 +83,9 @@
         <activity android:name="com.assistant.drivingtest.ui.CriteriaActivity" >
         </activity>
         
+        <activity android:name="com.assistant.drivingtest.ui.NightDrivingActivity" >
+        </activity>
+        
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"

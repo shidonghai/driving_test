@@ -128,6 +128,12 @@ public class ThirdSubjectNewLineFragment extends Fragment implements
 	}
 
 	private void save() {
+		if (mTestItems.size() == 0) {
+			Toast.makeText(getActivity(), R.string.test_item_empty,
+					Toast.LENGTH_SHORT).show();
+			return;
+		}
+
 		DBManager dbManager = DBManager.getInstance();
 
 		int size = dbManager.getSubjectSize();
@@ -157,19 +163,20 @@ public class ThirdSubjectNewLineFragment extends Fragment implements
 
 	@Override
 	public void onSuccess(LocationData location) {
-		if (null == location) {
+
+		mLocationData = location;
+		if (null == mLocationData) {
 			return;
 		}
 
-		mLocationData = location;
 		DecimalFormat decimalFormat = new DecimalFormat("#.00");
 		// mGPS.setText(decimalFormat.format(location.longitude) + ","
 		// + decimalFormat.format(location.latitude));
 		mGPS.setText(getString(R.string.gps_res,
 				decimalFormat.format(location.longitude),
 				decimalFormat.format(location.latitude)));
-		
-        Log.d(TAG, "speed:" + mLocationData.speed);
+
+		Log.d(TAG, "speed:" + mLocationData.speed);
 
 	}
 
@@ -239,10 +246,14 @@ public class ThirdSubjectNewLineFragment extends Fragment implements
 				thirdItem.name = testItem.name;
 				thirdItem.type = testItem.type;
 				thirdItem.voice = testItem.voice;
-				thirdItem.speed = mSpeed.getText().toString().trim();
+				thirdItem.speed = Double.valueOf(mSpeed.getText().toString()
+						.trim());
 
 				mTestItems.add(thirdItem);
 
+			} else {
+				Toast.makeText(getActivity(), R.string.gps_error,
+						Toast.LENGTH_SHORT).show();
 			}
 		}
 

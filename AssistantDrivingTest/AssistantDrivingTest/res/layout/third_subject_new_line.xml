@@ -107,7 +107,7 @@
             android:layout_marginRight="10dp"
             android:inputType="number"
             android:maxLength="3"
-            android:text="60"
+            android:text="@string/speed_hint"
             android:textColor="@color/blue"
             android:textSize="20sp" />
 

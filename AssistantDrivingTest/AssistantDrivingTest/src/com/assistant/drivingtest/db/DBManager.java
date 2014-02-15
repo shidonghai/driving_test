@@ -124,7 +124,7 @@ public class DBManager {
 							.getString(cursor
 									.getColumnIndex(ThirdSubjectItemTable.Columns.VOICE));
 					item.speed = cursor
-							.getString(cursor
+							.getDouble(cursor
 									.getColumnIndex(ThirdSubjectItemTable.Columns.SPEED));
 					item.type = cursor
 							.getInt(cursor
