@@ -606,12 +606,13 @@ public class ThirdSubjectItemFragment extends Fragment implements
 
 		mTestManager.setLocationData(mLocationData);
 
-		double speed = convertSpeed(mLocationData.speed);
-		String speedString = String.valueOf(roundDecimal(speed, 2));
+		// double speed = convertSpeed(mLocationData.speed);
+		String speedString = String
+				.valueOf(roundDecimal(mLocationData.speed, 2));
 		Log.d(TAG, "setSpeed:" + speedString);
 		mSpeed.setText(getString(R.string.speed, speedString));
 
-		mTestManager.setSpeed(speed);
+		mTestManager.setSpeed(mLocationData.speed);
 
 		// Log.d(TAG, "speed:" + location.speed);
 		// String speedString = String.valueOf(roundDecimal(
