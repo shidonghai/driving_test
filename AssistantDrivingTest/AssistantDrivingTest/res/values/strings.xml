@@ -36,6 +36,7 @@
     
     <string name="start">设置为考试起点</string>
     <string name="add_item">设置为语音播报点</string>
+    <string name="setting_end">设置为考试结束点</string>
     <string name="new_subject_name">%s号线</string>
     <string name="save_success">保存成功</string>
     <string name="save_fail">保存失败</string>
@@ -61,16 +62,16 @@
     <string-array name="second_subject">
         <item>侧方停车</item>
         <item>倒车入库</item>
-        <item>模拟高速</item>
-        <item>模拟急弯连续山区路</item>
+        <item>坡道定点停车和起步</item>
+        <item>曲线行驶</item>
         <item>拟湿滑路</item>
         <item>模拟隧道</item>
         <item>模拟雨雾天</item>
         <item>模拟窄路掉头</item>
-        <item>模拟障碍物</item>
-        <item>坡道定点停车和起步</item>
+        <item>模拟障碍物</item> 
+        <item>模拟高速</item>
         <item>起伏路</item>
-        <item>曲线行驶</item>
+        <item>模拟急弯连续山区路</item>
         <item>停车收费</item>
         <item>通过单边桥</item>
         <item>通过连续障碍</item>

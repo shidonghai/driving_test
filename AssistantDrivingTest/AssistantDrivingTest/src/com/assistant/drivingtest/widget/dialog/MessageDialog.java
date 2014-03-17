@@ -5,6 +5,7 @@ import com.assistant.drivingtest.R;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 
 
@@ -22,9 +23,12 @@ public class MessageDialog extends BaseDialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setDialogContentView(R.layout.layout_dialog_message);
-        TextView textview = (TextView) findViewById(R.id.content);
-        textview.setText(mMessage);
+        setDialogContentView(R.layout.message_dialog_layout);
+      //  TextView textview = (TextView) findViewById(R.id.content);
+       // textview.setText(mMessage);
+        
+        setBtnVisiable(Btn.CANCEL, View.GONE);
+        setBtnVisiable(Btn.CONFIRM, View.GONE);
     }
 
     public void setMessage(String msg) {
