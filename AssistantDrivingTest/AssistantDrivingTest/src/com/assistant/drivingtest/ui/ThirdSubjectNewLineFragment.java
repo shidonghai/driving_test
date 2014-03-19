@@ -211,7 +211,7 @@ public class ThirdSubjectNewLineFragment extends Fragment implements
 			break;
 
 		default:
-			MessageDialog itmeDialog = new MessageDialog(getActivity());
+			MessageDialog itmeDialog = new MessageDialog(getActivity(),item.hasStart);
 			itmeDialog.setTitle(item.name);
 			itmeDialog.setDialogListener(new TestItemDialogListener(item));
 			itmeDialog.setMessage(getString(R.string.add_item));
