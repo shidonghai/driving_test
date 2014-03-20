@@ -169,12 +169,12 @@ public class LocationOverlay extends Fragment {
 			return;
 		}
 
-		GeoPoint start = new GeoPoint((int) (mItems.get(0).latitude * 1E6),
-				(int) (mItems.get(0).longitude * 1E6));
+		GeoPoint start = new GeoPoint((int) (mItems.get(0).voiceLatitude * 1E6),
+				(int) (mItems.get(0).voiceLongitude * 1E6));
 
 		GeoPoint stop = new GeoPoint(
-				(int) (mItems.get(mItems.size() - 1).latitude * 1E6),
-				(int) (mItems.get(mItems.size() - 1).longitude * 1E6));
+				(int) (mItems.get(mItems.size() - 1).voiceLatitude * 1E6),
+				(int) (mItems.get(mItems.size() - 1).voiceLongitude * 1E6));
 		// GeoPoint[] step = new GeoPoint[mItems.size()];
 		// for (int i = 0; i < mItems.size(); i++) {
 		// step[i] = new GeoPoint((int) (mItems.get(i).latitude * 1E6),
@@ -185,8 +185,8 @@ public class LocationOverlay extends Fragment {
 		for (int i = 0; i < mItems.size(); i++) {
 
 			routeData[i] = new GeoPoint[] { new GeoPoint(
-					(int) (mItems.get(i).latitude * 1E6),
-					(int) (mItems.get(i).longitude * 1E6)) };
+					(int) (mItems.get(i).voiceLatitude * 1E6),
+					(int) (mItems.get(i).voiceLongitude * 1E6)) };
 		}
 
 		// 用站点数据构建一个MKRoute

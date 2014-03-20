@@ -61,7 +61,7 @@ public class ThirdSubjectItemFragment extends Fragment implements
 
 	private static final String TAG = "zxh";
 
-	private static final int START_SPACING = 10;
+	private static final int START_SPACING = 30;
 
 	private static final int LOAD_SUCCESS = 0;
 
@@ -562,12 +562,12 @@ public class ThirdSubjectItemFragment extends Fragment implements
 			return;
 		}
 
-		GeoPoint start = new GeoPoint((int) (items.get(0).latitude * 1E6),
-				(int) (items.get(0).longitude * 1E6));
+		GeoPoint start = new GeoPoint((int) (items.get(0).voiceLatitude * 1E6),
+				(int) (items.get(0).voiceLongitude * 1E6));
 
 		GeoPoint stop = new GeoPoint(
-				(int) (items.get(items.size() - 1).latitude * 1E6),
-				(int) (items.get(items.size() - 1).longitude * 1E6));
+				(int) (items.get(items.size() - 1).voiceLatitude * 1E6),
+				(int) (items.get(items.size() - 1).voiceLongitude * 1E6));
 		// GeoPoint[] step = new GeoPoint[mItems.size()];
 		// for (int i = 0; i < mItems.size(); i++) {
 		// step[i] = new GeoPoint((int) (mItems.get(i).latitude * 1E6),
@@ -578,8 +578,8 @@ public class ThirdSubjectItemFragment extends Fragment implements
 		for (int i = 0; i < items.size(); i++) {
 
 			routeData[i] = new GeoPoint[] { new GeoPoint(
-					(int) (items.get(i).latitude * 1E6),
-					(int) (items.get(i).longitude * 1E6)) };
+					(int) (items.get(i).voiceLatitude * 1E6),
+					(int) (items.get(i).voiceLongitude * 1E6)) };
 		}
 
 		// 用站点数据构建一个MKRoute
@@ -621,8 +621,8 @@ public class ThirdSubjectItemFragment extends Fragment implements
 
 		if (null != mCureentTestItem) {
 			int distance = MapUtil.getDistanceInt(mLocationData.latitude,
-					mLocationData.longitude, mCureentTestItem.latitude,
-					mCureentTestItem.longitude);
+					mLocationData.longitude, mCureentTestItem.voiceLatitude,
+					mCureentTestItem.voiceLongitude);
 			mDistance.setText(getString(R.string.distance,
 					MapUtil.getDistance(distance)));
 

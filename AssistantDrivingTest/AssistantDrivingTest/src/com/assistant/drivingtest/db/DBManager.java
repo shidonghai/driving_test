@@ -114,12 +114,24 @@ public class DBManager {
 					item.name = cursor
 							.getString(cursor
 									.getColumnIndex(ThirdSubjectItemTable.Columns.NAME));
-					item.latitude = cursor
+					item.voiceLatitude = cursor
 							.getDouble(cursor
-									.getColumnIndex(ThirdSubjectItemTable.Columns.LATITUDE));
-					item.longitude = cursor
+									.getColumnIndex(ThirdSubjectItemTable.Columns.VOICE_LATITUDE));
+					item.voiceLongitude = cursor
 							.getDouble(cursor
-									.getColumnIndex(ThirdSubjectItemTable.Columns.LONGITUDE));
+									.getColumnIndex(ThirdSubjectItemTable.Columns.VOICE_LONGITUDE));
+					item.startLatitude = cursor
+							.getDouble(cursor
+									.getColumnIndex(ThirdSubjectItemTable.Columns.START_LATITUDE));
+					item.startLongitude = cursor
+							.getDouble(cursor
+									.getColumnIndex(ThirdSubjectItemTable.Columns.START_LONGITUDE));
+					item.endLatitude = cursor
+							.getDouble(cursor
+									.getColumnIndex(ThirdSubjectItemTable.Columns.END_LATITUDE));
+					item.endLongitude = cursor
+							.getDouble(cursor
+									.getColumnIndex(ThirdSubjectItemTable.Columns.END_LONGITUDE));
 					item.voice = cursor
 							.getString(cursor
 									.getColumnIndex(ThirdSubjectItemTable.Columns.VOICE));
@@ -131,8 +143,8 @@ public class DBManager {
 									.getColumnIndex(ThirdSubjectItemTable.Columns.TYPE));
 
 					LogUtil.d(TAG, "getThirdTestItems:" + item.name + " "
-							+ item.type + " " + item.latitude + " "
-							+ item.longitude + " " + item.voice + " "
+							+ item.type + " " + item.voiceLatitude + " "
+							+ item.voiceLongitude + " " + item.voice + " "
 							+ item.speed);
 
 					items.add(item);
@@ -171,10 +183,22 @@ public class DBManager {
 				values.put(ThirdSubjectItemTable.Columns.SUBJECT_ID, id);
 				values.put(ThirdSubjectItemTable.Columns.NAME, item.name);
 				values.put(ThirdSubjectItemTable.Columns.TYPE, item.type);
-				values.put(ThirdSubjectItemTable.Columns.LONGITUDE,
-						item.longitude);
-				values.put(ThirdSubjectItemTable.Columns.LATITUDE,
-						item.latitude);
+
+				values.put(ThirdSubjectItemTable.Columns.VOICE_LONGITUDE,
+						item.voiceLongitude);
+				values.put(ThirdSubjectItemTable.Columns.VOICE_LATITUDE,
+						item.voiceLatitude);
+
+				values.put(ThirdSubjectItemTable.Columns.START_LONGITUDE,
+						item.startLongitude);
+				values.put(ThirdSubjectItemTable.Columns.START_LATITUDE,
+						item.startLatitude);
+
+				values.put(ThirdSubjectItemTable.Columns.END_LONGITUDE,
+						item.endLongitude);
+				values.put(ThirdSubjectItemTable.Columns.END_LATITUDE,
+						item.endLatitude);
+
 				values.put(ThirdSubjectItemTable.Columns.VOICE, item.voice);
 				values.put(ThirdSubjectItemTable.Columns.SPEED, item.speed);
 

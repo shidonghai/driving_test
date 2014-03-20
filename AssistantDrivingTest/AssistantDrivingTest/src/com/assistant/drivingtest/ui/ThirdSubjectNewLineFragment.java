@@ -34,6 +34,7 @@ import com.assistant.drivingtest.utils.LogUtil;
 import com.assistant.drivingtest.utils.Util;
 import com.assistant.drivingtest.widget.dialog.BaseDialog.DialogListener;
 import com.assistant.drivingtest.widget.dialog.MessageDialog;
+import com.assistant.drivingtest.widget.dialog.MessageDialog.MessageDialogListener;
 import com.baidu.mapapi.map.LocationData;
 
 public class ThirdSubjectNewLineFragment extends Fragment implements
@@ -211,7 +212,8 @@ public class ThirdSubjectNewLineFragment extends Fragment implements
 			break;
 
 		default:
-			MessageDialog itmeDialog = new MessageDialog(getActivity(),item.hasStart);
+			MessageDialog itmeDialog = new MessageDialog(getActivity(),
+					item.hasStart);
 			itmeDialog.setTitle(item.name);
 			itmeDialog.setDialogListener(new TestItemDialogListener(item));
 			itmeDialog.setMessage(getString(R.string.add_item));
@@ -229,20 +231,43 @@ public class ThirdSubjectNewLineFragment extends Fragment implements
 
 	}
 
-	private class TestItemDialogListener implements DialogListener {
+	private class TestItemDialogListener implements MessageDialogListener {
 
 		private TestItem testItem;
+		ThirdTestItem thirdItem;
 
 		public TestItemDialogListener(TestItem item) {
 			testItem = item;
+			thirdItem = new ThirdTestItem();
 		}
 
 		@Override
-		public void onConfirmed() {
+		public void onVoiceClick() {
 			if (null != mLocationData) {
-				ThirdTestItem thirdItem = new ThirdTestItem();
-				thirdItem.latitude = mLocationData.latitude;
-				thirdItem.longitude = mLocationData.longitude;
+				thirdItem.voiceLatitude = mLocationData.latitude;
+				thirdItem.voiceLongitude = mLocationData.longitude;
+			} else {
+				Toast.makeText(getActivity(), R.string.gps_error,
+						Toast.LENGTH_SHORT).show();
+			}
+		}
+
+		@Override
+		public void onStartClick() {
+			if (null != mLocationData) {
+				thirdItem.startLatitude = mLocationData.latitude;
+				thirdItem.startLongitude = mLocationData.longitude;
+			} else {
+				Toast.makeText(getActivity(), R.string.gps_error,
+						Toast.LENGTH_SHORT).show();
+			}
+		}
+
+		@Override
+		public void onEndClick() {
+			if (null != mLocationData) {
+				thirdItem.endLatitude = mLocationData.latitude;
+				thirdItem.endLongitude = mLocationData.longitude;
 				thirdItem.name = testItem.name;
 				thirdItem.type = testItem.type;
 				thirdItem.voice = testItem.voice;
