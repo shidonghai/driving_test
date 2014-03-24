@@ -22,6 +22,7 @@
     <string name="third_subject_setting_new">设置新路线</string>
     <string name="third_subject_setting_new_line_title">科目三 新建路线</string>
     <string name="save">保存</string>
+    <string name="quit">结束</string>
     <string name="delete">删除</string>
     
     <string name="gps_error">经纬度未获取到，请检查gps或网络</string>
@@ -54,6 +55,11 @@
     
     <string name="deduction_message">未按语音指令选择正确的行驶方向</string>
     <string name="deduction_message_speed">不按规定减速慢行</string>
+    <string name="deduction_message_straight_direction">方向控制不稳。不能保证车辆直线行驶</string>
+    <string name="deduction_message_straight_speed">不了解车辆行驶速度</string>
+    <string name="deduction_message_keep_direction">开转向灯少于3秒即转向</string>
+    <string name="deduction_message_overtake_right">从右侧超车</string>
+    <string name="deduction_message_turn_speed">未按规定减速或停车瞭望</string>
     
     <string name="night_driving_test">请按照语音进行操作</string>
     

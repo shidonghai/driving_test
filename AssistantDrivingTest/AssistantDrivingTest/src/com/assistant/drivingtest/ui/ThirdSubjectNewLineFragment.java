@@ -9,7 +9,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -40,7 +39,7 @@ import com.baidu.mapapi.map.LocationData;
 public class ThirdSubjectNewLineFragment extends Fragment implements
 		OnClickListener, LocationListener, OnItemClickListener {
 
-	private static final String TAG = "zxh";
+	private static final String TAG = "ThirdSubjectNewLineFragment";
 
 	private LocationTask mLocationTask;
 
@@ -176,27 +175,15 @@ public class ThirdSubjectNewLineFragment extends Fragment implements
 		mGPS.setText(getString(R.string.gps_res,
 				decimalFormat.format(location.longitude),
 				decimalFormat.format(location.latitude)));
-
-		Log.d(TAG, "speed:" + mLocationData.speed);
-
 	}
 
 	@Override
 	public void onFail() {
-		Log.d(TAG, "location onFail");
 	}
 
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 		TestItem item = mAdapter.getItem(arg2);
-
-		// if (Type.START == item.type) {
-		// MessageDialog dialog = new MessageDialog(getActivity());
-		// dialog.setTitle(item.name);
-		// dialog.setDialogListener(new StartItemDialogListener());
-		// dialog.setMessage(getString(R.string.start));
-		// dialog.show();
-		// }
 
 		switch (item.type) {
 

@@ -242,7 +242,6 @@ public class LocationOverlay extends Fragment {
 			// 更新定位数据
 			myLocationOverlay.setData(locData);
 
-			Log.d("zxh", locData.latitude + " -- " + locData.longitude);
 			mLocation.setText(locData.latitude + " -- " + locData.longitude);
 			// 更新图层数据执行刷新后生效
 			mMapView.refresh();

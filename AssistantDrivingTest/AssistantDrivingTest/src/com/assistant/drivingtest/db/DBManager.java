@@ -3,22 +3,19 @@ package com.assistant.drivingtest.db;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.R.integer;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import com.assistant.drivingtest.R.string;
 import com.assistant.drivingtest.domain.ThirdSubject;
 import com.assistant.drivingtest.domain.ThirdTestItem;
 import com.assistant.drivingtest.utils.LogUtil;
-import com.baidu.platform.comapi.b.e;
 
 public class DBManager {
 
-	private final String TAG = "zxh";
+	private final String TAG = "DBManager";
 
 	private DBHelper mDbHelper;
 
@@ -170,15 +167,9 @@ public class DBManager {
 		LogUtil.d(TAG, "id:" + id);
 
 		List<ThirdTestItem> testItems = subject.items;
-		Log.d(TAG, "testItems:" + testItems.size());
+		LogUtil.d(TAG, "testItems:" + testItems.size());
 		try {
 			for (ThirdTestItem item : testItems) {
-				// mDatabase.execSQL("INSERT INTO "
-				// + ThirdSubjectItemTable.TABLE_NAME
-				// + " VALUES(null, ?, ?, ?, ?, ? ,?)", new Object[] { id,
-				// item.name, item.longitude, item.latitude, item.voice,
-				// item.speed });
-
 				values = new ContentValues();
 				values.put(ThirdSubjectItemTable.Columns.SUBJECT_ID, id);
 				values.put(ThirdSubjectItemTable.Columns.NAME, item.name);

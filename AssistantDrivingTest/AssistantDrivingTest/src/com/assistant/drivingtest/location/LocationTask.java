@@ -57,9 +57,6 @@ public class LocationTask {
 			locData.speed = location.getSpeed();
 
 			if (mLocationListener != null) {
-				int type = location.getLocType();
-				Log.d("zxh", "location type:" + type + " "
-						+ (type == BDLocation.TypeGpsLocation));
 				mLocationListener.onSuccess(locData);
 			}
 		}

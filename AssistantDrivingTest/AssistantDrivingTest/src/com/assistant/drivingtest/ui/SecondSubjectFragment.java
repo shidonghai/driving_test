@@ -2,7 +2,6 @@ package com.assistant.drivingtest.ui;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import android.content.res.AssetFileDescriptor;
@@ -11,7 +10,6 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -27,7 +25,7 @@ import com.assistant.drivingtest.domain.SecondTestItem;
 public class SecondSubjectFragment extends Fragment implements OnClickListener,
 		OnItemClickListener {
 
-	private static final String TAG = "zxh";
+	private static final String TAG = "SecondSubjectFragment";
 
 	private ListView mListView;
 
@@ -70,8 +68,6 @@ public class SecondSubjectFragment extends Fragment implements OnClickListener,
 
 			mAdapter = new SecondSubjectAdapter(getActivity(), items);
 			mListView.setAdapter(mAdapter);
-
-			Log.d(TAG, Arrays.toString(accets));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

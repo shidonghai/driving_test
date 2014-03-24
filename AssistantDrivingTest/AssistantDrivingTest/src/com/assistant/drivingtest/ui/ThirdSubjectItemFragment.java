@@ -1,20 +1,23 @@
 package com.assistant.drivingtest.ui;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+import android.content.res.AssetFileDescriptor;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
+import android.media.MediaPlayer.OnErrorListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -24,6 +27,7 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,7 +48,6 @@ import com.assistant.drivingtest.sensor.GyroscopeSensorObserver;
 import com.assistant.drivingtest.sensor.MagneticSensor;
 import com.assistant.drivingtest.sensor.MagneticSensorObserver;
 import com.assistant.drivingtest.sensor.filter.MeanFilter;
-import com.assistant.drivingtest.ui.LocationOverlay.locationOverlay;
 import com.assistant.drivingtest.utils.Constant;
 import com.assistant.drivingtest.utils.MapUtil;
 import com.baidu.mapapi.map.LocationData;
@@ -59,7 +62,7 @@ public class ThirdSubjectItemFragment extends Fragment implements
 		OnClickListener, GravitySensorObserver, MagneticSensorObserver,
 		GyroscopeSensorObserver, LocationListener {
 
-	private static final String TAG = "zxh";
+	private static final String TAG = "ThirdSubjectItemFragment";
 
 	private static final int START_SPACING = 30;
 
@@ -127,6 +130,8 @@ public class ThirdSubjectItemFragment extends Fragment implements
 
 	private int mCurretItemPosition;
 
+	private RelativeLayout mQuitLayout;
+
 	private ThirdTestItem mCureentTestItem;
 
 	private LocationTask mLocationTask;
@@ -147,6 +152,8 @@ public class ThirdSubjectItemFragment extends Fragment implements
 	private MyLocationOverlay myLocationOverlay = null;
 
 	private List<Deduction> mDeductions = new ArrayList<Deduction>();
+
+	private TestItemListener mTestItemListener;
 
 	private Handler mHandler = new Handler() {
 
@@ -188,7 +195,6 @@ public class ThirdSubjectItemFragment extends Fragment implements
 		String name = bundle.getString("name");
 		mTitle.setText(name);
 
-		Log.d(TAG, "ThirdSubjectItemFragment:" + id);
 		loadLines(id);
 	}
 
@@ -204,7 +210,8 @@ public class ThirdSubjectItemFragment extends Fragment implements
 		mLocationTask.setLocationListener(this);
 
 		mTestManager = new ThirdSubjectTestManager(getActivity());
-		mTestManager.setListener(new TestItemListener());
+		mTestItemListener = new TestItemListener();
+		mTestManager.setListener(mTestItemListener);
 	}
 
 	@Override
@@ -254,6 +261,8 @@ public class ThirdSubjectItemFragment extends Fragment implements
 		mAngleView = (TextView) view.findViewById(R.id.angle);
 		mDistance = (TextView) view.findViewById(R.id.distance);
 		mSpeed = (TextView) view.findViewById(R.id.speed);
+		mQuitLayout = (RelativeLayout) view.findViewById(R.id.quit_layout);
+		mQuitLayout.setOnClickListener(this);
 
 		mAngleView.setText(getString(R.string.angle, 0));
 		mDistance.setText(getString(R.string.distance, MapUtil.getDistance(0)));
@@ -302,6 +311,11 @@ public class ThirdSubjectItemFragment extends Fragment implements
 			startTest();
 			break;
 
+		case R.id.quit_layout:
+			mQuitLayout.setClickable(false);
+			quit();
+			break;
+
 		default:
 			break;
 		}
@@ -323,6 +337,46 @@ public class ThirdSubjectItemFragment extends Fragment implements
 				.getInstace();
 		thirdTestItemManager.startLightTest(getActivity());
 		thirdTestItemManager.setLightTestListener(new LightTestListerner());
+	}
+
+	private void quit() {
+		MediaPlayer player = new MediaPlayer();
+		player.setOnCompletionListener(new OnCompletionListener() {
+
+			@Override
+			public void onCompletion(MediaPlayer mp) {
+				if (null != getActivity()) {
+					getActivity().finish();
+				}
+			}
+		});
+		player.setOnErrorListener(new OnErrorListener() {
+
+			@Override
+			public boolean onError(MediaPlayer mp, int what, int extra) {
+				if (null != getActivity()) {
+					getActivity().finish();
+				}
+				return false;
+			}
+		});
+
+		try {
+			AssetFileDescriptor fileDescriptor = getActivity()
+					.getAssets()
+					.openFd(mTestManager.getResult() < -10 ? Constant.THIRD_TEST_FAIL_VOICE
+							: Constant.THIRD_TEST_SUCCESS_VOICE);
+			player.setDataSource(fileDescriptor.getFileDescriptor(),
+					fileDescriptor.getStartOffset(), fileDescriptor.getLength());
+			player.prepare();
+			player.start();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IllegalStateException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void loadLines(final long id) {
@@ -423,8 +477,6 @@ public class ThirdSubjectItemFragment extends Fragment implements
 		if (hasInitialOrientation) {
 			mGravitySensor.removeGravityObserver(this);
 			mMagneticSensor.removeMagneticObserver(this);
-
-			Log.d("zxh", Arrays.toString(initialRotationMatrix));
 		}
 	}
 
@@ -599,45 +651,47 @@ public class ThirdSubjectItemFragment extends Fragment implements
 
 	@Override
 	public void onSuccess(LocationData location) {
-		mLocationData = location;
-		if (null == mLocationData) {
+		if (null == location) {
 			return;
 		}
 
-		mTestManager.setLocationData(mLocationData);
+		mTestManager.setLocationData(location);
 
 		// double speed = convertSpeed(mLocationData.speed);
-		String speedString = String
-				.valueOf(roundDecimal(mLocationData.speed, 2));
-		Log.d(TAG, "setSpeed:" + speedString);
+		String speedString = String.valueOf(roundDecimal(location.speed, 2));
 		mSpeed.setText(getString(R.string.speed, speedString));
-
-		mTestManager.setSpeed(mLocationData.speed);
-
-		// Log.d(TAG, "speed:" + location.speed);
-		// String speedString = String.valueOf(roundDecimal(
-		// convertSpeed(location.speed), 2));
-		// mSpeed.setText(getString(R.string.speed, speedString));
+		mTestManager.setSpeed(location.speed);
 
 		if (null != mCureentTestItem) {
-			int distance = MapUtil.getDistanceInt(mLocationData.latitude,
-					mLocationData.longitude, mCureentTestItem.voiceLatitude,
+			int distance = MapUtil.getDistanceInt(location.latitude,
+					location.longitude, mCureentTestItem.voiceLatitude,
 					mCureentTestItem.voiceLongitude);
 			mDistance.setText(getString(R.string.distance,
 					MapUtil.getDistance(distance)));
 
-			if (!mStartTest || mInProcessing || !hasInitialOrientation) {
-				return;
-			}
+			if (isStart() && distance < START_SPACING && null != mLocationData) {
+				double current = MapUtil.gps2d(mLocationData.latitude,
+						mLocationData.longitude, location.latitude,
+						location.longitude);
+				double lat = mCureentTestItem.startLatitude == 0.0 ? mCureentTestItem.endLatitude
+						: mCureentTestItem.startLatitude;
+				double lon = mCureentTestItem.startLongitude == 0.0 ? mCureentTestItem.endLongitude
+						: mCureentTestItem.startLongitude;
+				double item = MapUtil.gps2d(mCureentTestItem.voiceLatitude,
+						mCureentTestItem.voiceLongitude, lat, lon);
 
-			if (distance < START_SPACING) {
-				mInProcessing = true;
-				mCureentTestItem.azimuth = mAzimuth;
-				mTestManager.setTestItem(mCureentTestItem);
+				// 判断行驶方向
+				if (Math.abs(current - item) > 90) {
+					mTestItemListener.onItemComplete();
+				} else {
+					mInProcessing = true;
+					mCureentTestItem.azimuth = mAzimuth;
+					mTestManager.setTestItem(mCureentTestItem);
+				}
 			}
-
 		}
 
+		mLocationData = location;
 	}
 
 	@Override
@@ -654,6 +708,10 @@ public class ThirdSubjectItemFragment extends Fragment implements
 
 	}
 
+	private boolean isStart() {
+		return mStartTest && !mInProcessing && hasInitialOrientation;
+	}
+
 	private class TestItemListener implements ITestItemListener {
 
 		@Override
@@ -662,12 +720,8 @@ public class ThirdSubjectItemFragment extends Fragment implements
 			mCurretItemPosition = mCurretItemPosition + 1;
 			if (mCurretItemPosition == mAdapter.getCount()) {
 				mCureentTestItem = null;
-
 				mTestManager.setFinish(true);
-				mTestManager
-						.play(mTestManager.getResult() < 0 ? Constant.THIRD_TEST_FAIL_VOICE
-								: Constant.THIRD_TEST_SUCCESS_VOICE);
-				// getActivity().finish();
+				mQuitLayout.setVisibility(View.VISIBLE);
 			} else {
 				mCureentTestItem = mAdapter.getItem(mCurretItemPosition);
 				mAdapter.notifyDataSetChanged();
@@ -691,10 +745,7 @@ public class ThirdSubjectItemFragment extends Fragment implements
 			if (mCurretItemPosition == mAdapter.getCount()) {
 				mCureentTestItem = null;
 				mTestManager.setFinish(true);
-				mTestManager
-						.play(mTestManager.getResult() < 0 ? Constant.THIRD_TEST_FAIL_VOICE
-								: Constant.THIRD_TEST_SUCCESS_VOICE);
-
+				mQuitLayout.setVisibility(View.VISIBLE);
 			} else {
 				mCureentTestItem = mAdapter.getItem(mCurretItemPosition);
 				mAdapter.notifyDataSetChanged();
@@ -714,9 +765,17 @@ public class ThirdSubjectItemFragment extends Fragment implements
 		public void setSpeed(float speed, String distance) {
 			String speedString = String.valueOf(roundDecimal(
 					convertSpeed(speed), 2));
-			Log.d(TAG, "setSpeed:" + speedString);
 			mSpeed.setText(getString(R.string.speed, speedString) + "  "
 					+ distance);
+		}
+
+		@Override
+		public void addDeductionMessage(Deduction deduction) {
+			if (null != deduction) {
+				mDeductions.add(deduction);
+				mDeductionAdapter.notifyDataSetChanged();
+				mDeductionListView.setSelection(mDeductionAdapter.getCount());
+			}
 		}
 
 	}

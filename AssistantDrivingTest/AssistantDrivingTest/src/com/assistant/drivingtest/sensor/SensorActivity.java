@@ -1,11 +1,8 @@
 package com.assistant.drivingtest.sensor;
 
-import java.util.Arrays;
-
 import android.app.Activity;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.widget.TextView;
 
@@ -201,8 +198,6 @@ public class SensorActivity extends Activity implements GravitySensorObserver,
 		if (hasInitialOrientation) {
 			mGravitySensor.removeGravityObserver(this);
 			mMagneticSensor.removeMagneticObserver(this);
-
-			Log.d("zxh", Arrays.toString(initialRotationMatrix));
 		}
 	}
 
@@ -287,16 +282,15 @@ public class SensorActivity extends Activity implements GravitySensorObserver,
 		} else {
 			mChange = mChange + b;
 		}
-		Log.d("zxh", b + " " + mChange);
 
 		if (Math.abs(mChange) > 150) {
-			mAzimuthView.setText("掉头");
+			mAzimuthView.setText("锟斤拷头");
 		} else if (mChange > 2) {
-			mAzimuthView.setText(" 右转");
+			mAzimuthView.setText(" 锟斤拷转");
 		} else if (mChange < -2) {
-			mAzimuthView.setText(" 左转");
+			mAzimuthView.setText(" 锟斤拷转");
 		} else {
-			mAzimuthView.setText(" 直行");
+			mAzimuthView.setText(" 直锟斤拷");
 		}
 		
 		mAzimuthView.setText(mAzimuthView.getText() + "\n" + b + "  " + mAzimuth);
@@ -304,7 +298,6 @@ public class SensorActivity extends Activity implements GravitySensorObserver,
 		// mAzimuth.setText(String.valueOf(azimuth));
 		// Log.d(TAG, "azimuth:" + azimuth);
 		//
-		// Log.d("zxh",
 		// gyroscopeOrientationAndroid[0] + "  "
 		// + Math.toDegrees(gyroscopeOrientationAndroid[0]) + "  "
 		// + azimuth);

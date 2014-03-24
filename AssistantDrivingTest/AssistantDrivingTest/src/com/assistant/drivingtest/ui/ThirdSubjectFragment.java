@@ -25,7 +25,7 @@ import com.assistant.drivingtest.domain.ThirdSubject;
 public class ThirdSubjectFragment extends Fragment implements OnClickListener,
 		OnItemClickListener {
 
-	private static final String TAG = "zxh";
+	private static final String TAG = "ThirdSubjectFragment";
 
 	private static final int LOAD_SUCCESS = 0;
 
