@@ -29,7 +29,9 @@
     <string name="test_item_empty">请添加考试内容</string>
     
     <string name="gps">GPS</string>
-    <string name="speed_limit">车速限制</string>
+    <string name="speed_limit">过路口车速</string>
+    <string name="speed_station_limit">过公交站台车速</string>
+    <string name="item_distance">项目距离设置(m)：</string>
     <string name="search_radius">搜索半径</string>
     <string name="sensitivity">灵敏度</string>
     <string name="gps_searching">正在搜索...</string>
@@ -42,6 +44,7 @@
     <string name="save_success">保存成功</string>
     <string name="save_fail">保存失败</string>
     <string name="speed_hint">30</string>
+    <string name="distance_hint">200</string>
     
     <string name="night_driving">模拟夜考灯光</string>
     <string name="speed">车速：%skm/h</string>
@@ -62,13 +65,21 @@
     <string name="deduction_message_turn_speed">未按规定减速或停车瞭望</string>
     
     <string name="night_driving_test">请按照语音进行操作</string>
-    
+    <string name="bus_station">公交站台</string>
+    <string name="change_line">变更车道</string>
+    <string name="pull_over">靠边停车</string>
+    <string name="intersection">通过路口</string>
+    <string name="driving_straight">直线行驶</string>
+    <string name="gear_operation">加减档位</string>
+    <string name="overtake">超车</string>
+    <string name="u_turn">掉头</string>
 
     <!-- 顺序应与assets second下文件一致 -->
     <string-array name="second_subject">
         <item>侧方停车</item>
         <item>倒车入库</item>
         <item>坡道定点停车和起步</item>
+        <item>直角转弯</item>
         <item>曲线行驶</item>
         <item>拟湿滑路</item>
         <item>模拟隧道</item>

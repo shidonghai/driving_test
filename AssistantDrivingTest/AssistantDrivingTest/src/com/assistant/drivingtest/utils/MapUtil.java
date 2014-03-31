@@ -51,7 +51,6 @@ public class MapUtil {
 		d = Math.cos(lat_b) * Math.sin(lng_b - lng_a) / d;
 		d = Math.asin(d) * 180 / Math.PI;
 
-		// d = Math.round(d*10000);
-		return d;
+		return (double) (Math.toDegrees(d) + 360) % 360;
 	}
 }

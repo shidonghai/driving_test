@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.R.integer;
 import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -46,6 +47,17 @@ public class ThirdSubjectNewLineFragment extends Fragment implements
 	private TextView mGPS;
 
 	private EditText mSpeed;
+
+	private EditText mStaionSpeed;
+
+	private EditText mBusStaionDistance;
+	private EditText mChangeLineDistance;
+	private EditText mPulloverDistance;
+	private EditText mintersectionDistance;
+	private EditText mDrivingStraightDistance;
+	private EditText mGearOperationDistance;
+	private EditText mTakeoverDistance;
+	private EditText mUTurnDistance;
 
 	private ThirdItemsAdapter mAdapter;
 
@@ -103,6 +115,18 @@ public class ThirdSubjectNewLineFragment extends Fragment implements
 
 		mGPS = (TextView) view.findViewById(R.id.gps);
 		mSpeed = (EditText) view.findViewById(R.id.speed_limit);
+		mStaionSpeed = (EditText) view.findViewById(R.id.speed_station_limit);
+
+		mBusStaionDistance = (EditText) view.findViewById(R.id.bus_distance);
+		mChangeLineDistance = (EditText) view.findViewById(R.id.change_line);
+		mPulloverDistance = (EditText) view.findViewById(R.id.pull_over);
+		mintersectionDistance = (EditText) view.findViewById(R.id.intersection);
+		mDrivingStraightDistance = (EditText) view
+				.findViewById(R.id.driving_straight);
+		mGearOperationDistance = (EditText) view
+				.findViewById(R.id.gear_operation);
+		mTakeoverDistance = (EditText) view.findViewById(R.id.takeover);
+		mUTurnDistance = (EditText) view.findViewById(R.id.u_turn);
 
 		mAdapter = new ThirdItemsAdapter(getActivity());
 		GridView gridView = (GridView) view.findViewById(R.id.item_grid);
@@ -209,6 +233,75 @@ public class ThirdSubjectNewLineFragment extends Fragment implements
 		}
 	}
 
+	private double getSpeed(int type) {
+		double speed;
+		switch (type) {
+		case Type.BUS_STATION:
+		case Type.SCHOOL:
+		case Type.CROSSWALK:
+			speed = Double.valueOf(mStaionSpeed.getText().toString().trim());
+			break;
+
+		default:
+			speed = Double.valueOf(mSpeed.getText().toString().trim());
+			break;
+		}
+		return speed;
+	}
+
+	private int getDistance(int type) {
+		int distance;
+		switch (type) {
+		case Type.BUS_STATION:
+		case Type.SCHOOL:
+		case Type.CROSSWALK:
+			distance = Integer.valueOf(mBusStaionDistance.getText().toString()
+					.trim());
+			break;
+
+		case Type.CHANGE_LINE:
+			distance = Integer.valueOf(mChangeLineDistance.getText().toString()
+					.trim());
+			break;
+
+		case Type.PULL_OVER:
+			distance = Integer.valueOf(mPulloverDistance.getText().toString()
+					.trim());
+			break;
+
+		case Type.INTERSECTION_STRAIGHT:
+			distance = Integer.valueOf(mintersectionDistance.getText()
+					.toString().trim());
+			break;
+
+		case Type.DRIVING_STRAIGHT:
+			distance = Integer.valueOf(mDrivingStraightDistance.getText()
+					.toString().trim());
+			break;
+
+		case Type.GEAR_OPERATION:
+			distance = Integer.valueOf(mGearOperationDistance.getText()
+					.toString().trim());
+			break;
+
+		case Type.OVERTAKE:
+			distance = Integer.valueOf(mTakeoverDistance.getText().toString()
+					.trim());
+			break;
+
+		case Type.U_TURN:
+			distance = Integer.valueOf(mUTurnDistance.getText().toString()
+					.trim());
+			break;
+
+		default:
+			distance = Integer.valueOf(mintersectionDistance.getText()
+					.toString().trim());
+			break;
+		}
+		return distance;
+	}
+
 	private class StartItemDialogListener implements DialogListener {
 
 		@Override
@@ -258,8 +351,8 @@ public class ThirdSubjectNewLineFragment extends Fragment implements
 				thirdItem.name = testItem.name;
 				thirdItem.type = testItem.type;
 				thirdItem.voice = testItem.voice;
-				thirdItem.speed = Double.valueOf(mSpeed.getText().toString()
-						.trim());
+				thirdItem.speed = getSpeed(testItem.type);
+				thirdItem.distance = getDistance(testItem.type);
 
 				mTestItems.add(thirdItem);
 

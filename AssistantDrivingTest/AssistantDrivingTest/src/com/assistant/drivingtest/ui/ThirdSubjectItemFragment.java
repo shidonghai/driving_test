@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -41,6 +42,7 @@ import com.assistant.drivingtest.logic.ThirdSubjectTestManager;
 import com.assistant.drivingtest.logic.ThirdSubjectTestManager.ITestItemListener;
 import com.assistant.drivingtest.logic.ThirdTestItemManager;
 import com.assistant.drivingtest.logic.ThirdTestItemManager.ILightTest;
+import com.assistant.drivingtest.logic.ThirdTestItemManager.Type;
 import com.assistant.drivingtest.sensor.GravitySensor;
 import com.assistant.drivingtest.sensor.GravitySensorObserver;
 import com.assistant.drivingtest.sensor.GyroscopeSensor;
@@ -128,11 +130,11 @@ public class ThirdSubjectItemFragment extends Fragment implements
 
 	private TextView mSpeed;
 
-	private int mCurretItemPosition;
+	private int mCurretItemPosition = -1;
 
 	private RelativeLayout mQuitLayout;
 
-	private ThirdTestItem mCureentTestItem;
+	// private ThirdTestItem mCureentTestItem;
 
 	private LocationTask mLocationTask;
 
@@ -141,6 +143,10 @@ public class ThirdSubjectItemFragment extends Fragment implements
 	private boolean mStartTest = false;
 
 	private boolean mInProcessing;
+
+	private boolean mIsFinish;
+
+	private int mLastType = -1;
 
 	private ThirdSubjectTestManager mTestManager;
 
@@ -155,20 +161,22 @@ public class ThirdSubjectItemFragment extends Fragment implements
 
 	private TestItemListener mTestItemListener;
 
+	private List<ThirdTestItem> mTestList;;
+
 	private Handler mHandler = new Handler() {
 
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 
 			case LOAD_SUCCESS:
-				List<ThirdTestItem> items = (List<ThirdTestItem>) msg.obj;
-				mCurretItemPosition = 0;
-				if (items.size() > mCurretItemPosition) {
-					mCureentTestItem = items.get(mCurretItemPosition);
-				}
+				mTestList = (List<ThirdTestItem>) msg.obj;
+				// mCurretItemPosition = 0;
+				// if (mTestList.size() > mCurretItemPosition) {
+				// mCureentTestItem = mTestList.get(mCurretItemPosition);
+				// }
 
-				mAdapter.setList(items);
-				setOverlay(items);
+				mAdapter.setList(mTestList);
+				setOverlay(mTestList);
 				break;
 
 			default:
@@ -246,7 +254,6 @@ public class ThirdSubjectItemFragment extends Fragment implements
 
 		mMapView.destroy();
 
-		mTestManager.onDestroy();
 		ThirdTestItemManager.getInstace().stopLightTest();
 	}
 
@@ -313,7 +320,18 @@ public class ThirdSubjectItemFragment extends Fragment implements
 
 		case R.id.quit_layout:
 			mQuitLayout.setClickable(false);
-			quit();
+			// if (mIsFinish) {
+			// quit();
+			// } else {
+			// getActivity().finish();
+			// }
+			mTestManager.onDestroy();
+			mStartTest = false;
+			if (-1 == mLastType) {
+				getActivity().finish();
+			} else {
+				quit();
+			}
 			break;
 
 		default:
@@ -598,18 +616,6 @@ public class ThirdSubjectItemFragment extends Fragment implements
 	}
 
 	private void setOverlay(List<ThirdTestItem> items) {
-		// ItemizedOverlay<OverlayItem> overlay = new
-		// ItemizedOverlay<OverlayItem>(
-		// getResources().getDrawable(R.drawable.nav_turn_via_1), mMapView);
-		//
-		// GeoPoint p = new GeoPoint((int) (mItems.get(0).latitude * 1E6),
-		// (int) (mItems.get(0).longitude * 1E6));
-		// OverlayItem item = new OverlayItem(p, "起点", "");
-		// item.setMarker(getResources().getDrawable(R.drawable.nav_turn_via_1));
-		// overlay.addItem(item);
-		// mMapView.getOverlays().add(overlay);
-		// mMapView.refresh();
-
 		if (null == items || items.size() == 0) {
 			return;
 		}
@@ -620,11 +626,6 @@ public class ThirdSubjectItemFragment extends Fragment implements
 		GeoPoint stop = new GeoPoint(
 				(int) (items.get(items.size() - 1).voiceLatitude * 1E6),
 				(int) (items.get(items.size() - 1).voiceLongitude * 1E6));
-		// GeoPoint[] step = new GeoPoint[mItems.size()];
-		// for (int i = 0; i < mItems.size(); i++) {
-		// step[i] = new GeoPoint((int) (mItems.get(i).latitude * 1E6),
-		// (int) (mItems.get(i).longitude * 1E6));
-		// }
 
 		GeoPoint[][] routeData = new GeoPoint[items.size()][];
 		for (int i = 0; i < items.size(); i++) {
@@ -662,31 +663,46 @@ public class ThirdSubjectItemFragment extends Fragment implements
 		mSpeed.setText(getString(R.string.speed, speedString));
 		mTestManager.setSpeed(location.speed);
 
-		if (null != mCureentTestItem) {
-			int distance = MapUtil.getDistanceInt(location.latitude,
-					location.longitude, mCureentTestItem.voiceLatitude,
-					mCureentTestItem.voiceLongitude);
-			mDistance.setText(getString(R.string.distance,
-					MapUtil.getDistance(distance)));
+		ThirdTestItem testItem = null;
+		if (null != mTestList && isStart()) {
+			for (int i = 0; i < mTestList.size(); i++) {
+				testItem = mTestList.get(i);
+				if (-1 == mLastType
+						&& (Type.U_TURN == testItem.type || Type.PULL_OVER == testItem.type)) {
+					continue;
+				}
 
-			if (isStart() && distance < START_SPACING && null != mLocationData) {
-				double current = MapUtil.gps2d(mLocationData.latitude,
-						mLocationData.longitude, location.latitude,
-						location.longitude);
-				double lat = mCureentTestItem.startLatitude == 0.0 ? mCureentTestItem.endLatitude
-						: mCureentTestItem.startLatitude;
-				double lon = mCureentTestItem.startLongitude == 0.0 ? mCureentTestItem.endLongitude
-						: mCureentTestItem.startLongitude;
-				double item = MapUtil.gps2d(mCureentTestItem.voiceLatitude,
-						mCureentTestItem.voiceLongitude, lat, lon);
+				int distance = MapUtil.getDistanceInt(location.latitude,
+						location.longitude, testItem.voiceLatitude,
+						testItem.voiceLongitude);
+				// mDistance.setText(getString(R.string.distance,
+				// MapUtil.getDistance(distance)));
+				if (distance < START_SPACING && null != mLocationData) {
+					double current = MapUtil.gps2d(mLocationData.latitude,
+							mLocationData.longitude, location.latitude,
+							location.longitude);
+					double lat = testItem.startLatitude == 0.0 ? testItem.endLatitude
+							: testItem.startLatitude;
+					double lon = testItem.startLongitude == 0.0 ? testItem.endLongitude
+							: testItem.startLongitude;
+					double item = MapUtil.gps2d(testItem.voiceLatitude,
+							testItem.voiceLongitude, lat, lon);
 
-				// 判断行驶方向
-				if (Math.abs(current - item) > 90) {
-					mTestItemListener.onItemComplete();
-				} else {
-					mInProcessing = true;
-					mCureentTestItem.azimuth = mAzimuth;
-					mTestManager.setTestItem(mCureentTestItem);
+					// 判断行驶方向
+					if (Math.abs(current - item) < 90 || Double.isNaN(item)) {
+						mInProcessing = true;
+						testItem.azimuth = mAzimuth;
+						mTestManager.setTestItem(testItem);
+
+						mCurretItemPosition = i;
+						mAdapter.notifyDataSetChanged();
+
+						mLastType = testItem.type;
+
+						mDistance.setText(getString(R.string.distance,
+								MapUtil.getDistance(testItem.distance)));
+						break;
+					}
 				}
 			}
 		}
@@ -717,16 +733,19 @@ public class ThirdSubjectItemFragment extends Fragment implements
 		@Override
 		public void onItemComplete() {
 
-			mCurretItemPosition = mCurretItemPosition + 1;
-			if (mCurretItemPosition == mAdapter.getCount()) {
-				mCureentTestItem = null;
-				mTestManager.setFinish(true);
-				mQuitLayout.setVisibility(View.VISIBLE);
-			} else {
-				mCureentTestItem = mAdapter.getItem(mCurretItemPosition);
-				mAdapter.notifyDataSetChanged();
-			}
+			// if (mCurretItemPosition == mAdapter.getCount()) {
+			// mCureentTestItem = null;
+			// mTestManager.setFinish(true);
+			// mQuitLayout.setVisibility(View.VISIBLE);
+			//
+			// mIsFinish = true;
+			// } else {
+			// mCureentTestItem = mAdapter.getItem(mCurretItemPosition);
+			// mAdapter.notifyDataSetChanged();
+			// }
 
+			mCurretItemPosition = -1;
+			mAdapter.notifyDataSetChanged();
 			mInProcessing = false;
 
 		}
@@ -741,15 +760,17 @@ public class ThirdSubjectItemFragment extends Fragment implements
 		@Override
 		public void testFail(Deduction deduction) {
 
-			mCurretItemPosition = mCurretItemPosition + 1;
-			if (mCurretItemPosition == mAdapter.getCount()) {
-				mCureentTestItem = null;
-				mTestManager.setFinish(true);
-				mQuitLayout.setVisibility(View.VISIBLE);
-			} else {
-				mCureentTestItem = mAdapter.getItem(mCurretItemPosition);
-				mAdapter.notifyDataSetChanged();
-			}
+			// mCurretItemPosition = mCurretItemPosition + 1;
+			// if (mCurretItemPosition == mAdapter.getCount()) {
+			// mCureentTestItem = null;
+			// mTestManager.setFinish(true);
+			// mQuitLayout.setVisibility(View.VISIBLE);
+			//
+			// mIsFinish = true;
+			// } else {
+			// mCureentTestItem = mAdapter.getItem(mCurretItemPosition);
+			// mAdapter.notifyDataSetChanged();
+			// }
 
 			if (null != deduction) {
 				mDeductions.add(deduction);
@@ -757,6 +778,8 @@ public class ThirdSubjectItemFragment extends Fragment implements
 			}
 
 			mInProcessing = false;
+			mCurretItemPosition = -1;
+			mAdapter.notifyDataSetChanged();
 			mDeductionListView.setSelection(mDeductionAdapter.getCount());
 
 		}

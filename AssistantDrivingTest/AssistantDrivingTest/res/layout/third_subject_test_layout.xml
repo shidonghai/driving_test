@@ -30,7 +30,6 @@
 
         <RelativeLayout
             android:id="@+id/quit_layout"
-            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"

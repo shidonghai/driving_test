@@ -138,6 +138,9 @@ public class DBManager {
 					item.type = cursor
 							.getInt(cursor
 									.getColumnIndex(ThirdSubjectItemTable.Columns.TYPE));
+					item.distance = cursor
+							.getInt(cursor
+									.getColumnIndex(ThirdSubjectItemTable.Columns.DISTANCE));
 
 					LogUtil.d(TAG, "getThirdTestItems:" + item.name + " "
 							+ item.type + " " + item.voiceLatitude + " "
@@ -192,6 +195,8 @@ public class DBManager {
 
 				values.put(ThirdSubjectItemTable.Columns.VOICE, item.voice);
 				values.put(ThirdSubjectItemTable.Columns.SPEED, item.speed);
+				values.put(ThirdSubjectItemTable.Columns.DISTANCE,
+						item.distance);
 
 				mDatabase
 						.insert(ThirdSubjectItemTable.TABLE_NAME, null, values);
