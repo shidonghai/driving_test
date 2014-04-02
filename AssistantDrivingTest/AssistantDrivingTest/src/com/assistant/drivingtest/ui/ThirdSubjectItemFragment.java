@@ -23,6 +23,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
@@ -62,7 +64,7 @@ import com.baidu.platform.comapi.basestruct.GeoPoint;
 
 public class ThirdSubjectItemFragment extends Fragment implements
 		OnClickListener, GravitySensorObserver, MagneticSensorObserver,
-		GyroscopeSensorObserver, LocationListener {
+		GyroscopeSensorObserver, LocationListener, OnItemClickListener {
 
 	private static final String TAG = "ThirdSubjectItemFragment";
 
@@ -279,6 +281,7 @@ public class ThirdSubjectItemFragment extends Fragment implements
 		GridView gridView = (GridView) view.findViewById(R.id.item_grid);
 		gridView.setAdapter(mAdapter);
 		gridView.setSelector(new ColorDrawable(Color.TRANSPARENT));
+		gridView.setOnItemClickListener(this);
 
 		mDeductionAdapter = new DeductionAdapter();
 		mDeductionListView = (ListView) view.findViewById(R.id.deduction_list);
@@ -692,7 +695,7 @@ public class ThirdSubjectItemFragment extends Fragment implements
 					if (Math.abs(current - item) < 90 || Double.isNaN(item)) {
 						mInProcessing = true;
 						testItem.azimuth = mAzimuth;
-						mTestManager.setTestItem(testItem);
+						mTestManager.setTestItem(testItem, false);
 
 						mCurretItemPosition = i;
 						mAdapter.notifyDataSetChanged();
@@ -909,6 +912,27 @@ public class ThirdSubjectItemFragment extends Fragment implements
 			TextView scores;
 		}
 
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View arg1, int position,
+			long arg3) {
+		if (mInProcessing) {
+			return;
+		}
+
+		ThirdTestItem testItem = mAdapter.getItem(position);
+		mInProcessing = true;
+		testItem.azimuth = mAzimuth;
+		mTestManager.setTestItem(testItem, true);
+
+		mCurretItemPosition = position;
+		mAdapter.notifyDataSetChanged();
+
+		mLastType = testItem.type;
+
+		mDistance.setText(getString(R.string.distance,
+				MapUtil.getDistance(testItem.distance)));
 	}
 
 }
