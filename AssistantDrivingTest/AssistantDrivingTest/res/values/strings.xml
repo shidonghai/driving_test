@@ -49,6 +49,7 @@
     <string name="night_driving">模拟夜考灯光</string>
     <string name="speed">车速：%skm/h</string>
     <string name="distance">项目距离：%s</string>
+    <string name="current_distance">行驶距离：%s</string>
     <string name="angle">偏转角度：%s°</string>
     
     <string name="start_test">开始测试</string>

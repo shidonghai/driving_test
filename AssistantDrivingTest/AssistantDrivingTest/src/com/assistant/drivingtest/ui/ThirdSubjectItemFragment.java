@@ -18,7 +18,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -68,7 +67,7 @@ public class ThirdSubjectItemFragment extends Fragment implements
 
 	private static final String TAG = "ThirdSubjectItemFragment";
 
-	private static final int START_SPACING = 30;
+	private static final int START_SPACING = 50;
 
 	private static final int LOAD_SUCCESS = 0;
 
@@ -130,6 +129,8 @@ public class ThirdSubjectItemFragment extends Fragment implements
 
 	private TextView mDistance;
 
+	private TextView mCurrentDis;
+
 	private TextView mSpeed;
 
 	private int mCurretItemPosition = -1;
@@ -140,7 +141,7 @@ public class ThirdSubjectItemFragment extends Fragment implements
 
 	private LocationTask mLocationTask;
 
-	private LocationData mLocationData;
+	private LocationData mLocationData = new LocationData();
 
 	private boolean mStartTest = false;
 
@@ -163,7 +164,7 @@ public class ThirdSubjectItemFragment extends Fragment implements
 
 	private TestItemListener mTestItemListener;
 
-	private List<ThirdTestItem> mTestList;;
+	private List<ThirdTestItem> mTestList;
 
 	private Handler mHandler = new Handler() {
 
@@ -269,9 +270,11 @@ public class ThirdSubjectItemFragment extends Fragment implements
 		mTitle = (TextView) view.findViewById(R.id.title);
 		mAngleView = (TextView) view.findViewById(R.id.angle);
 		mDistance = (TextView) view.findViewById(R.id.distance);
+		mCurrentDis = (TextView) view.findViewById(R.id.current_dis);
 		mSpeed = (TextView) view.findViewById(R.id.speed);
 		mQuitLayout = (RelativeLayout) view.findViewById(R.id.quit_layout);
 		mQuitLayout.setOnClickListener(this);
+		mCurrentDis.setVisibility(View.GONE);
 
 		mAngleView.setText(getString(R.string.angle, 0));
 		mDistance.setText(getString(R.string.distance, MapUtil.getDistance(0)));
@@ -654,7 +657,7 @@ public class ThirdSubjectItemFragment extends Fragment implements
 	}
 
 	@Override
-	public void onSuccess(LocationData location) {
+	public synchronized void onSuccess(LocationData location) {
 		if (null == location) {
 			return;
 		}
@@ -666,21 +669,22 @@ public class ThirdSubjectItemFragment extends Fragment implements
 		mSpeed.setText(getString(R.string.speed, speedString));
 		mTestManager.setSpeed(location.speed);
 
-		ThirdTestItem testItem = null;
-		if (null != mTestList && isStart()) {
-			for (int i = 0; i < mTestList.size(); i++) {
-				testItem = mTestList.get(i);
-				if (-1 == mLastType
-						&& (Type.U_TURN == testItem.type || Type.PULL_OVER == testItem.type)) {
-					continue;
-				}
+		if ((mLocationData.latitude - location.latitude) != 0
+				|| (mLocationData.longitude - location.longitude) != 0) {
+			ThirdTestItem testItem = null;
+			if (null != mTestList && isStart() && null != mLocationData) {
+				for (int i = 0; i < mTestList.size(); i++) {
+					testItem = mTestList.get(i);
+					if (-1 == mLastType
+							&& (Type.U_TURN == testItem.type || Type.PULL_OVER == testItem.type)) {
+						continue;
+					}
 
-				int distance = MapUtil.getDistanceInt(location.latitude,
-						location.longitude, testItem.voiceLatitude,
-						testItem.voiceLongitude);
-				// mDistance.setText(getString(R.string.distance,
-				// MapUtil.getDistance(distance)));
-				if (distance < START_SPACING && null != mLocationData) {
+					int distance = MapUtil.getDistanceInt(location.latitude,
+							location.longitude, testItem.voiceLatitude,
+							testItem.voiceLongitude);
+					// mDistance.setText(getString(R.string.distance,
+					// MapUtil.getDistance(distance)));
 					double current = MapUtil.gps2d(mLocationData.latitude,
 							mLocationData.longitude, location.latitude,
 							location.longitude);
@@ -691,8 +695,11 @@ public class ThirdSubjectItemFragment extends Fragment implements
 					double item = MapUtil.gps2d(testItem.voiceLatitude,
 							testItem.voiceLongitude, lat, lon);
 
-					// 判断行驶方向
-					if (Math.abs(current - item) < 90 || Double.isNaN(item)) {
+					if (distance < START_SPACING
+							&& (Math.abs(current - item) < 100 || Double
+									.isNaN(item))) {
+
+						// 判断行驶方向
 						mInProcessing = true;
 						testItem.azimuth = mAzimuth;
 						mTestManager.setTestItem(testItem, false);
@@ -710,7 +717,9 @@ public class ThirdSubjectItemFragment extends Fragment implements
 			}
 		}
 
-		mLocationData = location;
+		mLocationData.latitude = location.latitude;
+		mLocationData.longitude = location.longitude;
+		mLocationData.speed = location.speed;
 	}
 
 	@Override
@@ -804,6 +813,12 @@ public class ThirdSubjectItemFragment extends Fragment implements
 			}
 		}
 
+		@Override
+		public void setDistance(int distance) {
+			mCurrentDis.setText(getString(R.string.distance,
+					MapUtil.getDistance(distance)));
+		}
+
 	}
 
 	private class ThirdSubjectAdapter extends BaseAdapter {
@@ -825,10 +840,10 @@ public class ThirdSubjectItemFragment extends Fragment implements
 			return 0;
 		}
 
-		@Override
-		public boolean isEnabled(int position) {
-			return false;
-		}
+		// @Override
+		// public boolean isEnabled(int position) {
+		// return false;
+		// }
 
 		@Override
 		public View getView(int arg0, View arg1, ViewGroup arg2) {
@@ -917,7 +932,7 @@ public class ThirdSubjectItemFragment extends Fragment implements
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int position,
 			long arg3) {
-		if (mInProcessing) {
+		if (mInProcessing || !mStartTest) {
 			return;
 		}
 
